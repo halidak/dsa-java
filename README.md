@@ -8,7 +8,7 @@ The pattern templates are in [CHEATSHEET.md](CHEATSHEET.md).
 
 | # | Pattern | Package | Solved |
 |---|---------|---------|--------|
-| 1 | Arrays & Hashing | `dsa.arrays` | 2 / 9 |
+| 1 | Arrays & Hashing | `dsa.arrays` | 3 / 9 |
 | 2 | Two Pointers | `dsa.twopointers` | 0 / 5 |
 | 3 | Sliding Window | `dsa.slidingwindow` | 0 / 6 |
 | 4 | Stack | `dsa.stack` | 0 / 7 |
