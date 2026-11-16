@@ -378,6 +378,7 @@ Isto kao obična metoda:
 int duzina(String s) { return s.length(); }
 ```
 - Ime parametra biram sama (`s`, `kljuc`, `k`…). Tip Java sama zaključi.
+- **Zamka:** parametar lambde ne sme da se zove isto kao promenljiva koja već postoji. U `topKFrequent(int[] nums, int k)` linija `computeIfAbsent(c, k -> new ArrayList<>())` ne radi (*variable k is already defined*). Daj drugo ime: `x -> new ArrayList<>()`.
 - Koristi se u `forEach`, `computeIfAbsent`, `compute`, `merge`, a kasnije i u Streams API.
 
 ### Kako radi iznutra
@@ -461,4 +462,5 @@ for (int x : seen) { ... }   // prolazak, redosled nije garantovan
 | Two Sum | Ne traži par, nego broj koji fali: `fali = target - nums[i]`. Pamti viđene brojeve u HashMap (broj → pozicija). **Prvo proveri** `containsKey(fali)`, **pa tek onda** `put`, da broj ne nađe sam sebe. O(n) vreme, O(n) memorija. |
 | Contains Duplicate | Pamti viđene brojeve u **HashSet**. Ako je broj već u setu, `return true`. Pozicija ne treba, pa nije HashMap. O(n) vreme, O(n) memorija. Alternative: dve petlje O(n²), ili sortiraj pa uporedi susede O(n log n). |
 | Group Anagrams | Anagrami posle sortiranja slova izgledaju isto: `"eat"`, `"tea"` → `"aet"`. To je **ključ grupe**. Mapa `Map<String, List<String>>`: za svaku reč `toCharArray` → `Arrays.sort` → `new String` = ključ, pa `computeIfAbsent(key, k -> new ArrayList<>()).add(reč)`. Na kraju `new ArrayList<>(groups.values())`. O(n · k log k), n = broj reči, k = dužina reči. |
+| Top K Frequent | 1) prebroj: `Map<broj, koliko puta>` sa `getOrDefault`. 2) „prevrni“ u kutije: `Map<koliko puta, List<broj>>` sa `computeIfAbsent`. 3) broj ponavljanja ne može biti veći od n, pa probaj ključeve od `n` naniže (`containsKey`) i skupljaj brojeve dok ih ne bude k. O(n). Jednostavnije: sortiraj po broju ponavljanja, O(n log n). |
 | | |
