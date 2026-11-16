@@ -1,6 +1,6 @@
 # Java beleške
 
-Metode i trikovi koje sam naučila kroz zadatke. Za svaku stavku: šta radi, primer, kad se koristi i koliko košta.
+Metode, teorija i trikovi, **grupisano po temi** (ne po danu kad sam učila). Za svaku stavku: šta radi, primer, kad se koristi i koliko košta. Na početku svake teme piše iz kojih izvora je.
 
 > Šabloni (sliding window, BFS, DP…) su u [CHEATSHEET.md](CHEATSHEET.md). Ovde idu sitne Java stvari.
 
@@ -8,25 +8,58 @@ Metode i trikovi koje sam naučila kroz zadatke. Za svaku stavku: šta radi, pri
 
 ## Sadržaj
 
-1. [Kako rešavam zadatak](#kako-rešavam-zadatak)
+1. [Kako rešavam zadatak](#kako-rešavam-zadatak): šta intervjuer gleda, 6 koraka, komunikacija
 2. [Stringovi](#stringovi): `length`, `charAt`, `toCharArray`, `c - 'a'`
 3. [Nizovi](#nizovi): `Arrays.sort`, `Arrays.equals`, `Arrays.toString`, for-each, `new int[...]`
-4. [HashMap](#hashmap): metode, prolazak kroz mapu, Java 8 metode, kako radi iznutra
-5. [HashSet](#hashset): `add`, `contains`, `remove`, HashMap vs HashSet
-6. [Trikovi iz zadataka](#trikovi-iz-zadataka)
+4. [Hash mape i setovi: kad i zašto](#hash-mape-i-setovi-kad-i-zašto): poređenje, složenost, ključne reči u zadatku
+   - [HashMap](#hashmap): metode, prolazak kroz mapu, Java 8 metode (`computeIfAbsent`, grupisanje), [lambda izrazi](#lambda-izrazi), kako radi iznutra
+   - [HashSet](#hashset): `add`, `contains`, `remove`, HashMap vs HashSet
+5. [Trikovi iz zadataka](#trikovi-iz-zadataka)
 
 ---
 
 ## Kako rešavam zadatak
 
-1. **Pročitam i prepričam** šta se traži, svojim rečima. Šta je ulaz, šta vraćam?
-2. **Prođem primere ručno**, na papiru.
-3. **Pitam se kako bih to uradila bez računara.** To je obično brute force.
-4. **Napišem brute force** i kažem njegovu složenost.
-5. **Optimizujem:** da li može brže? Da li mi pomaže HashMap, sortiranje ili dva pokazivača?
-6. **Pokrenem testove**, pa razmislim o ivičnim slučajevima (prazno, jedan element, duplikati, negativni brojevi).
-7. **Popunim header** (Idea, Complexity, confidence), pa commit i push.
-8. **Ovde upišem** svaku novu metodu ili trik.
+> Izvori: *Coding Interview Patterns*, Introduction (PDF str. 17–21) + moj postupak iz zadataka.
+
+### Šta intervjuer gleda
+
+| Dobro (pozitivni signali) | Loše (negativni signali) |
+|---|---|
+| zna strukture podataka i **kada** koju da koristi | slabe osnove (strukture, algoritmi) |
+| jasno objašnjava razmišljanje i trade-off-ove | ćuti ili ne ume da objasni pristup |
+| postavlja pitanja, sarađuje sa intervjuerom | preterano samopouzdanje |
+| čist, čitljiv kod | ne prihvata sugestije, drži se jednog pristupa |
+| optimizuje vreme i memoriju | ignoriše ograničenja i ivične slučajeve |
+| sama testira i ispravlja greške | predugo na jednom delu, ne završi na vreme |
+
+- Mala greška nije problem. Ako je **sama nađem i ispravim**, to je čak plus.
+- Nije bitno samo tačno rešenje, nego **kako** sam do njega došla.
+
+### 6 koraka na intervjuu
+
+1. **Razjasni zadatak.** Prepričaj ga svojim rečima. Pitaj za ograničenja i ivične slučajeve: može li niz biti prazan, ima li negativnih brojeva, duplikata, koliko je veliki ulaz?
+2. **Smisli algoritam.**
+   - Kreni od **brute force**. Jednostavno rešenje je bolje od nikakvog, a bolje rešenje često nastane iz njega. Ako je očigledno, dovoljno je da ga opišeš rečima.
+   - Razmotri više pristupa (npr. sortiranje ili HashMap), reci prednosti i mane i izaberi.
+   - Za složen algoritam napiši prvo pseudokod.
+3. **Proceni složenost** (vreme i memorija), okvirno, pre kodiranja.
+4. **Napiši čist kod.** Smislena imena promenljivih, pomoćne metode, a po potrebi i mala klasa (npr. `Interval` sa `start` i `end`).
+5. **Ponovo reci složenost**, sad tačno za napisani kod. Ako se razlikuje od procene, objasni zašto.
+6. **Testiraj.**
+   - prvo jednostavan primer
+   - pa ivični slučajevi: prazno, jedan element, duplikati, negativni brojevi
+   - pa granične vrednosti: najmanji i najveći mogući ulaz (npr. `0` i `Integer.MAX_VALUE`)
+
+**Posle zadatka (moj postupak):** popunim header (Idea, Complexity, confidence), commit i push, a nove metode i trikove upišem ovde.
+
+### Komunikacija
+
+- **Razmišljaj naglas.** Intervjueru je važnije da vidi kako razmišljaš nego da odmah dođeš do optimalnog rešenja.
+- **Proveri da li te prati**, pa ćeš brže čuti ako si krenula pogrešno.
+- **Reci alternative**: „Mogu sa sortiranjem O(n log n) ili sa HashSet-om O(n), biram HashSet jer…“
+- **Kad zapneš**, reci gde si, šta si probala i zašto misliš da ne ide. Intervjuer će često dati hint.
+- **Treba ti vremena?** Reci: „Daj mi minut da razmislim.“ Tako tišina ne izgleda kao da si se izgubila.
 
 ---
 
@@ -38,6 +71,7 @@ Metode i trikovi koje sam naučila kroz zadatke. Za svaku stavku: šta radi, pri
 | `s.charAt(i)` | karakter na poziciji `i` | O(1) |
 | `s.toCharArray()` | string → `char[]` | O(n) |
 | `c - 'a'` | slovo → broj 0–25 | O(1) |
+| `new String(chars)` | `char[]` → String | O(n) |
 
 ### `s.length()`
 Broj karaktera u stringu.
@@ -71,6 +105,16 @@ int index = 'c' - 'a';   // 2
 - Koristi se uz `int[] count = new int[26]` za brojanje slova, umesto HashMap-e. To je brže.
 - Radi samo ako zadatak kaže „lowercase English letters“.
 
+### `new String(chars)` / `String.valueOf(chars)`
+Pravi String od niza karaktera. Obrnuto od `toCharArray()`.
+```java
+char[] chars = "tea".toCharArray();   // [t, e, a]
+Arrays.sort(chars);                   // [a, e, t]
+String key = new String(chars);       // "aet"
+```
+- Koristi se kad sortirana slova treba da budu **ključ u mapi** (Group Anagrams). Niz ne valja kao ključ, jer se nizovi ne porede po sadržaju.
+- **Zamka:** `chars.toString()` ne vraća slova, nego nešto kao `[C@1b6d3586` (adresa objekta). Uvek `new String(chars)` ili `String.valueOf(chars)`.
+
 ---
 
 ## Nizovi
@@ -95,6 +139,8 @@ char[] a = {'t', 'a', 'r'};
 Arrays.sort(a);                 // a je sad ['a', 'r', 't']
 ```
 - Greška koju ne treba praviti: `a = Arrays.sort(a)` ne radi, jer metoda vraća `void`.
+- **`Arrays`, sa s na kraju!** `Array.sort` (bez s) ne postoji i VS Code ga podvuče crveno.
+- Sortira samo **niz**. `Arrays.sort("tea")` ne radi, prvo `toCharArray()`.
 
 ### `Arrays.equals(a, b)`
 `true` ako su dva niza iste dužine i imaju iste elemente istim redom.
@@ -134,6 +180,34 @@ return new int[] {seen.get(fali), i};   // npr. [0, 1]
 
 ---
 
+## Hash mape i setovi: kad i zašto
+
+> Izvori: *Coding Interview Patterns*, pogl. 2 Hash Maps and Sets (PDF str. 45–47) + [Baeldung – A Guide to Java HashMap](https://www.baeldung.com/java-hashmap). Detalji po strukturi su u delovima [HashMap](#hashmap) i [HashSet](#hashset).
+
+**Ideja:** umesto da pretražujem celu listu (O(n)), „zapamtim“ podatke tako da ih nađem odmah (O(1)). Kao prodavac koji zna cene napamet umesto da ih traži po spisku.
+
+| | HashMap | HashSet |
+|---|---|---|
+| Čuva | parove ključ → vrednost | samo ključeve |
+| Duplikati | ključevi su jedinstveni | elementi su jedinstveni |
+| Redosled | nije garantovan | nije garantovan |
+| Koristim za | brojanje (frekvencije), keš, rečnik, „broj → pozicija“ | jedinstvene elemente, „već viđeno / posećeno“, proveru duplikata |
+
+**Složenost:**
+
+| Operacija | Prosek | Najgori slučaj |
+|---|---|---|
+| dodavanje | O(1) | O(n) |
+| pretraga | O(1) | O(n) |
+| brisanje | O(1) | O(n) |
+
+- Na intervjuu se računa **prosek, O(1)**. Najgori slučaj nastaje kad mnogo ključeva padne u istu kantu (kolizije). U Javi 8+ je to O(log n), jer se kanta pretvara u stablo.
+- Memorija je O(n).
+
+**Ključne reči u zadatku** koje upućuju na hash mapu ili set: *frequency, count, unique, duplicate, map, dictionary, fast lookup, seen/visited*.
+
+---
+
 ## HashMap
 
 Čuva parove **ključ → vrednost**. Ključevi su jedinstveni, redosled nije garantovan.
@@ -145,7 +219,7 @@ import java.util.Map;
 Map<String, Integer> map = new HashMap<>();
 ```
 
-> Izvor: [Baeldung – A Guide to Java HashMap](https://www.baeldung.com/java-hashmap)
+> Izvor: [Baeldung – A Guide to Java HashMap](https://www.baeldung.com/java-hashmap), delovi 2, 4 i 6
 
 ### Brzi pregled
 
@@ -161,6 +235,7 @@ Map<String, Integer> map = new HashMap<>();
 | `putIfAbsent(k, v)` | upiše samo ako ključa **nema** | O(1) |
 | `merge(k, v, f)` | ako ključa nema upiše `v`, inače spoji staru i novu vrednost | O(1) |
 | `compute(k, f)` | izračuna novu vrednost iz stare (stara može biti `null`) | O(1) |
+| `computeIfAbsent(k, f)` | ako ključa nema, izračuna i upiše; vrati vrednost | O(1) |
 | `keySet()` / `values()` / `entrySet()` | ključevi / vrednosti / parovi, za petlju | O(n) za prolazak |
 
 *O(1) je prosečan slučaj. Najgori slučaj je O(n), ili O(log n) od Jave 8 (vidi [Kako radi iznutra](#kako-radi-iznutra)).*
@@ -246,6 +321,65 @@ map.compute("jabuka", (k, v) -> v == null ? 1 : v + 1);
 ```
 - Razlika od `merge`: `compute` nema podrazumevanu vrednost, pa sama moraš da obradiš `null`.
 
+#### `map.computeIfAbsent(k, key -> nova)`
+Ako ključa **nema**, pozove funkciju, upiše rezultat u mapu i vrati ga. Ako ključ **postoji**, samo vrati postojeću vrednost, a funkciju **ne poziva**.
+
+> Izvor: [Baeldung – The Map.computeIfAbsent() Method](https://www.baeldung.com/java-map-computeifabsent), delovi 2.1 i 2.2
+
+```java
+Map<String, Integer> m = new HashMap<>();
+m.computeIfAbsent("John", s -> s.length());   // nema ključa → računa 4, upiše "John"→4, vrati 4
+
+m.put("Ana", 5);
+m.computeIfAbsent("Ana", s -> s.length());    // ključ postoji → vrati 5, lambda se NE poziva
+```
+
+| Ključ u mapi? | Šta radi |
+|---|---|
+| da | vrati postojeću vrednost |
+| ne | pozove funkciju, upiše rezultat, vrati ga |
+
+- Ako funkcija vrati `null`, ništa se ne upisuje.
+
+**Grupisanje: lista kao vrednost.** Najčešća upotreba je mapa čija je vrednost **lista**, a lista se pravi tek kad ključ prvi put naiđe:
+
+```java
+// grupiši reči po dužini
+Map<Integer, List<String>> poDuzini = new HashMap<>();
+for (String w : List.of("ab", "cd", "abc")) {
+    poDuzini.computeIfAbsent(w.length(), k -> new ArrayList<>()).add(w);
+}
+// {2=[ab, cd], 3=[abc]}
+```
+
+- `computeIfAbsent(...)` vraća listu (novu ili postojeću), pa odmah može `.add(w)`.
+- Bez toga bi moralo ovako, u tri koraka:
+  ```java
+  if (!poDuzini.containsKey(len)) {
+      poDuzini.put(len, new ArrayList<>());
+  }
+  poDuzini.get(len).add(w);
+  ```
+- Uz `List` i `ArrayList` treba `import java.util.List;` i `import java.util.ArrayList;`.
+- Sve grupe na kraju: `new ArrayList<>(poDuzini.values())`.
+
+### Lambda izrazi
+
+Kratak zapis male funkcije bez imena: **ulaz `->` šta vraća**.
+
+```java
+s -> s.length()          // jedan parametar: "za dato s, vrati s.length()"
+(k, v) -> k + "=" + v    // dva parametra idu u zagradu
+k -> new ArrayList<>()   // parametar se ne mora koristiti
+```
+
+Isto kao obična metoda:
+```java
+int duzina(String s) { return s.length(); }
+```
+- Ime parametra biram sama (`s`, `kljuc`, `k`…). Tip Java sama zaključi.
+- Koristi se u `forEach`, `computeIfAbsent`, `compute`, `merge`, a kasnije i u Streams API.
+
 ### Kako radi iznutra
 
 Pitanje koje se često postavlja na intervjuu: *„Kako radi HashMap?“*
@@ -326,4 +460,5 @@ for (int x : seen) { ... }   // prolazak, redosled nije garantovan
 | Valid Anagram | Prvo proveri dužine. Zatim ili sortiraj obe reči i uporedi (O(n log n)), ili prebroj slova u `int[26]` (O(n)). |
 | Two Sum | Ne traži par, nego broj koji fali: `fali = target - nums[i]`. Pamti viđene brojeve u HashMap (broj → pozicija). **Prvo proveri** `containsKey(fali)`, **pa tek onda** `put`, da broj ne nađe sam sebe. O(n) vreme, O(n) memorija. |
 | Contains Duplicate | Pamti viđene brojeve u **HashSet**. Ako je broj već u setu, `return true`. Pozicija ne treba, pa nije HashMap. O(n) vreme, O(n) memorija. Alternative: dve petlje O(n²), ili sortiraj pa uporedi susede O(n log n). |
+| Group Anagrams | Anagrami posle sortiranja slova izgledaju isto: `"eat"`, `"tea"` → `"aet"`. To je **ključ grupe**. Mapa `Map<String, List<String>>`: za svaku reč `toCharArray` → `Arrays.sort` → `new String` = ključ, pa `computeIfAbsent(key, k -> new ArrayList<>()).add(reč)`. Na kraju `new ArrayList<>(groups.values())`. O(n · k log k), n = broj reči, k = dužina reči. |
 | | |
