@@ -15,8 +15,75 @@ for (int x : nums) freq.merge(x, 1, Integer::sum);
 - Top K frequent elements: bucket sort by frequency gives O(n).
 - Prefix sums: `prefix[i + 1] = prefix[i] + nums[i]`, and the sum of `[l, r]` is `prefix[r + 1] - prefix[l]`.
 
+### Kako da prepoznam u zadatku: 5 obrazaca (moje beleške)
+
+Kad pročitam zadatak, pitam se: **„Da li mi treba da nešto brzo nađem, prebrojim ili grupišem?“** Ako da, skoro uvek je hash mapa ili set.
+
+| # | Obrazac | Signal u zadatku | Struktura | Zadaci |
+|---|---|---|---|---|
+| 1 | **Da li sam već videla?** | *duplicate, unique, exists, contains, seen, visited* | `HashSet<T>` | Contains Duplicate |
+| 2 | **Traži „par“ / komplement** | *two numbers add up to target*, „naći drugi deo“ | `HashMap<broj, pozicija>` | Two Sum |
+| 3 | **Prebrojavanje** | *frequency, count, how many times, most/least common, anagram* | `HashMap<x, broj ponavljanja>` ili `int[26]` za slova | Valid Anagram, Top K Frequent |
+| 4 | **Grupisanje po zajedničkom ključu** | *group, categorize*, „stvari koje imaju isto…“ | `HashMap<ključ, List<T>>` + `computeIfAbsent` | Group Anagrams |
+| 5 | **Brojanje, pa „kutije“ po broju ponavljanja** | *top k, k most frequent*, a traži se bolje od O(n log n) | brojanje (3), pa `HashMap<broj ponavljanja, List<T>>` | Top K Frequent |
+
+#### 1. Da li sam već videla? → HashSet
+```java
+Set<Integer> seen = new HashSet<>();
+for (int n : nums) {
+    if (seen.contains(n)) { /* našla duplikat */ }
+    seen.add(n);
+}
+```
+- Treba mi samo **da/ne**, bez dodatnog podatka.
+
+#### 2. Komplement → HashMap broj → pozicija
+```java
+Map<Integer, Integer> seen = new HashMap<>();
+for (int i = 0; i < nums.length; i++) {
+    int fali = target - nums[i];
+    if (seen.containsKey(fali)) { /* par: seen.get(fali) i i */ }
+    seen.put(nums[i], i);
+}
+```
+- Ne tražim par sa dve petlje (O(n²)), nego pitam: „da li sam već videla broj koji mi fali?“
+- **Prvo proveri, pa tek onda dodaj**, da broj ne nađe sam sebe.
+
+#### 3. Prebrojavanje → HashMap x → broj ponavljanja
+```java
+Map<Integer, Integer> count = new HashMap<>();
+for (int n : nums) {
+    count.put(n, count.getOrDefault(n, 0) + 1);
+}
+```
+- Ako su to samo mala slova (a–z): `int[] count = new int[26]; count[c - 'a']++;` je brže.
+- Ključ = **ono što brojim**, vrednost = **koliko puta**. Nikad obrnuto (brojevi ponavljanja se ponavljaju, pa bi se ključevi pregazili).
+
+#### 4. Grupisanje → HashMap ključ → lista
+```java
+Map<String, List<String>> groups = new HashMap<>();
+for (String w : words) {
+    String key = /* šta je zajedničko svima u grupi? */;
+    groups.computeIfAbsent(key, x -> new ArrayList<>()).add(w);
+}
+return new ArrayList<>(groups.values());
+```
+- Najteži deo je **smisliti ključ**: šta je isto kod svih u grupi, a drugačije od ostalih? (Group Anagrams: sortirana slova.)
+
+#### 5. Kutije po broju ponavljanja → top k bez sortiranja
+1. prebroj (obrazac 3)
+2. „prevrni“ u `Map<broj ponavljanja, List<T>>` (obrazac 4)
+3. broj ponavljanja ne može biti veći od `n`, pa probaj ključeve od `n` naniže i skupljaj dok ne bude k
+- O(n). Jednostavnija varijanta: sortiraj po broju ponavljanja, O(n log n).
+
+#### Kad hash mapa **nije** prvi izbor
+- Niz je **sortiran** → često dva pokazivača (Two Pointers), bez dodatne memorije.
+- Treba mi **redosled** ključeva → `TreeMap` (sortirano) ili `LinkedHashMap` (redosled ubacivanja).
+- Smem samo O(1) memorije → hash mapa troši O(n), traži drugi pristup.
+
 **Tricks I learned:**
--
+- Vidi tabelu „Trikovi iz zadataka“ u [JAVA_NOTES.md](JAVA_NOTES.md#trikovi-iz-zadataka).
+
 
 ---
 

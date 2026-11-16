@@ -206,6 +206,8 @@ return new int[] {seen.get(fali), i};   // npr. [0, 1]
 
 **Ključne reči u zadatku** koje upućuju na hash mapu ili set: *frequency, count, unique, duplicate, map, dictionary, fast lookup, seen/visited*.
 
+**Kako da prepoznam u zadatku da treba hash mapa ili set** (5 obrazaca sa šablonima) je u [CHEATSHEET.md → Arrays & Hashing](CHEATSHEET.md#arrays--hashing), jer je to LeetCode šablon, a ne Java.
+
 ---
 
 ## HashMap
