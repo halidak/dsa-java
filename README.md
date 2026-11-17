@@ -2,7 +2,7 @@
 
 My LeetCode solutions in Java 21, organized by pattern and following the NeetCode 150 roadmap. Every solution has JUnit 5 tests, and every push runs them on GitHub Actions.
 
-The pattern templates are in [CHEATSHEET.md](CHEATSHEET.md).
+The pattern templates are in [CHEATSHEET.md](CHEATSHEET.md). Java methods and tricks from the problems are in [JAVA_NOTES.md](JAVA_NOTES.md), and Java theory for interviews (String pool, HashMap internals, equals/hashCode…) is in [JAVA_THEORY.md](JAVA_THEORY.md).
 
 ## Progress
 

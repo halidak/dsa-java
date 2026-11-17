@@ -1,20 +1,22 @@
 # Java beleške
 
-Metode, teorija i trikovi, **grupisano po temi** (ne po danu kad sam učila). Za svaku stavku: šta radi, primer, kad se koristi i koliko košta. Na početku svake teme piše iz kojih izvora je.
+Java metode i trikovi iz zadataka, **grupisano po temi** (ne po danu kad sam učila). Za svaku stavku: šta radi, primer, kad se koristi i koliko košta. Na početku svake teme piše iz kojih izvora je.
 
-> Šabloni (sliding window, BFS, DP…) su u [CHEATSHEET.md](CHEATSHEET.md). Ovde idu sitne Java stvari.
+> Šabloni (sliding window, BFS, DP…) su u [CHEATSHEET.md](CHEATSHEET.md), teorija u [JAVA_THEORY.md](JAVA_THEORY.md). Ovde idu sitne Java stvari.
 
 **Brzo traženje:** `Ctrl+F` + ime metode (npr. `getOrDefault`), ili klikni na deo ispod.
 
 ## Sadržaj
 
 1. [Kako rešavam zadatak](#kako-rešavam-zadatak): šta intervjuer gleda, 6 koraka, komunikacija
-2. [Stringovi](#stringovi): `length`, `charAt`, `toCharArray`, `c - 'a'`
+2. [Stringovi](#stringovi): `length`, `charAt`, `toCharArray`, `c - 'a'`, `indexOf`, `substring`, `Integer.parseInt`, [StringBuilder](#stringbuilder)
 3. [Nizovi](#nizovi): `Arrays.sort`, `Arrays.equals`, `Arrays.toString`, for-each, `new int[...]`
 4. [Hash mape i setovi: kad i zašto](#hash-mape-i-setovi-kad-i-zašto): poređenje, složenost, ključne reči u zadatku
-   - [HashMap](#hashmap): metode, prolazak kroz mapu, Java 8 metode (`computeIfAbsent`, grupisanje), [lambda izrazi](#lambda-izrazi), kako radi iznutra
+   - [HashMap](#hashmap): metode, prolazak kroz mapu, Java 8 metode (`computeIfAbsent`, grupisanje), [lambda izrazi](#lambda-izrazi), [kako radi iznutra](JAVA_THEORY.md#2-kako-hashmap-radi-iznutra)
    - [HashSet](#hashset): `add`, `contains`, `remove`, HashMap vs HashSet
 5. [Trikovi iz zadataka](#trikovi-iz-zadataka)
+
+**Teorija** (String nepromenljivost i pool, kako HashMap radi iznutra, equals i hashCode…) je u posebnom fajlu: [JAVA_THEORY.md](JAVA_THEORY.md).
 
 ---
 
@@ -65,6 +67,8 @@ Metode, teorija i trikovi, **grupisano po temi** (ne po danu kad sam učila). Za
 
 ## Stringovi
 
+> Izvori: metode iz zadataka (Valid Anagram, Group Anagrams, Encode and Decode Strings). Teorija o stringovima: [JAVA_THEORY.md](JAVA_THEORY.md#1-stringovi).
+
 | Metoda | Šta radi | Složenost |
 |---|---|---|
 | `s.length()` | broj karaktera | O(1) |
@@ -72,6 +76,11 @@ Metode, teorija i trikovi, **grupisano po temi** (ne po danu kad sam učila). Za
 | `s.toCharArray()` | string → `char[]` | O(n) |
 | `c - 'a'` | slovo → broj 0–25 | O(1) |
 | `new String(chars)` | `char[]` → String | O(n) |
+| `s.indexOf(c, od)` | pozicija prvog `c` počevši od `od`, ili `-1` | O(n) |
+| `s.substring(od, do)` | deo stringa od `od` do `do` (**`do` se ne uzima**) | O(dužina dela) |
+| `Integer.parseInt(s)` | `"12"` → `12` | O(dužina) |
+| `sb.append(x)` | dopiše `x` na kraj StringBuilder-a | O(1) prosečno |
+| `sb.toString()` | StringBuilder → String | O(n) |
 
 ### `s.length()`
 Broj karaktera u stringu.
@@ -114,6 +123,64 @@ String key = new String(chars);       // "aet"
 ```
 - Koristi se kad sortirana slova treba da budu **ključ u mapi** (Group Anagrams). Niz ne valja kao ključ, jer se nizovi ne porede po sadržaju.
 - **Zamka:** `chars.toString()` ne vraća slova, nego nešto kao `[C@1b6d3586` (adresa objekta). Uvek `new String(chars)` ili `String.valueOf(chars)`.
+
+### `s.indexOf(c, od)`
+Traži znak (ili string) i vraća **poziciju** prvog pojavljivanja. Ako ga nema, vraća `-1`.
+```java
+String s = "3#a-b1#c";
+//          01234567   ← pozicije
+s.indexOf('#')      // 1
+s.indexOf('#', 0)   // 1   (traži od pozicije 0)
+s.indexOf('#', 5)   // 6   (sve pre pozicije 5 preskoči)
+s.indexOf('x')      // -1
+```
+- Vraća **poziciju**, ne vrednost. Drugi argument kaže „odavde počni da tražiš“.
+- Koristila u Encode and Decode Strings: `int j = s.indexOf('#', i);`
+
+### `s.substring(od, do)`
+Vraća deo stringa **od** pozicije `od` **do** pozicije `do`, ali `do` **ne uključuje**.
+```java
+String s = "3#a-b1#c";
+s.substring(0, 1)   // "3"     (samo pozicija 0)
+s.substring(2, 5)   // "a-b"   (pozicije 2, 3, 4)
+s.substring(2)      // "a-b1#c" (od 2 do kraja)
+```
+- Trik za pamćenje: dužina rezultata je `do - od` (`5 - 2 = 3` znaka).
+- Ako hoću `len` znakova od pozicije `p`: `s.substring(p, p + len)`.
+- Pravi **novi** String ([stringovi su nepromenljivi](JAVA_THEORY.md#string-je-nepromenljiv-immutable)), pa košta O(dužina dela).
+
+### `Integer.parseInt(s)`
+Pretvara tekst u broj.
+```java
+Integer.parseInt("12")    // 12
+Integer.parseInt("3") + 1 // 4
+Integer.parseInt("a")     // NumberFormatException!
+```
+- Obrnuto (broj → tekst): `String.valueOf(12)` ili `"" + 12`. `sb.append(12)` sam pretvori broj.
+
+### StringBuilder
+
+Promenljiv String: dopisuje na kraj bez pravljenja novog objekta. **Spajanje u petlji → StringBuilder** (zašto: [JAVA_THEORY → Zašto StringBuilder](JAVA_THEORY.md#zašto-stringbuilder)).
+
+```java
+StringBuilder sb = new StringBuilder();
+sb.append("a").append(3).append('#');   // "a3#"
+String s = sb.toString();
+```
+
+| Metoda | Šta radi |
+|---|---|
+| `new StringBuilder()` | prazan |
+| `sb.append(x)` | dopiše `x` na kraj (String, `int`, `char`…); vraća isti `sb`, pa može `sb.append(a).append(b)` |
+| `sb.toString()` | gotov String |
+| `sb.length()` | trenutna dužina |
+| `sb.reverse()` | obrne sadržaj (korisno za palindrome) |
+| `sb.insert(i, x)` / `sb.deleteCharAt(i)` | ubaci / obriši na poziciji (O(n)) |
+
+- Pravilo: **spajanje u petlji → StringBuilder**. Jedno spajanje van petlje (`"Zdravo " + ime`) je u redu, kompajler to sam optimizuje.
+- Koristila u Encode and Decode Strings: `sb.append(s.length()).append('#').append(s);`
+
+> Teorija o stringovima (nepromenljivost, String pool, StringBuilder vs StringBuffer): [JAVA_THEORY.md → Stringovi](JAVA_THEORY.md#1-stringovi).
 
 ---
 
@@ -240,7 +307,7 @@ Map<String, Integer> map = new HashMap<>();
 | `computeIfAbsent(k, f)` | ako ključa nema, izračuna i upiše; vrati vrednost | O(1) |
 | `keySet()` / `values()` / `entrySet()` | ključevi / vrednosti / parovi, za petlju | O(n) za prolazak |
 
-*O(1) je prosečan slučaj. Najgori slučaj je O(n), ili O(log n) od Jave 8 (vidi [Kako radi iznutra](#kako-radi-iznutra)).*
+*O(1) je prosečan slučaj. Najgori slučaj je O(n), ili O(log n) od Jave 8 (vidi [JAVA_THEORY → Kako HashMap radi iznutra](JAVA_THEORY.md#2-kako-hashmap-radi-iznutra)).*
 
 ### Osnovne metode
 
@@ -385,36 +452,13 @@ int duzina(String s) { return s.length(); }
 
 ### Kako radi iznutra
 
-Pitanje koje se često postavlja na intervjuu: *„Kako radi HashMap?“*
-
-**`put(k, v)`:**
-1. Izračuna `k.hashCode()`.
-2. Od hash-a izračuna **kantu** (bucket): mesto u unutrašnjem nizu.
-3. U toj kanti pomoću `equals()` proveri da li ključ već postoji. Ako postoji, pregazi vrednost; ako ne, doda novi par.
-
-**`get(k)`:** isto, izračuna kantu, pa u njoj traži ključ pomoću `equals()`.
-
-**Ključni pojmovi:**
-
-| Pojam | Objašnjenje |
-|---|---|
-| **Kolizija** | Dva različita ključa padnu u istu kantu. Čuvaju se zajedno, u listi. |
-| **Treeify** (Java 8) | Kad kanta ima **8+** elemenata, lista se pretvara u stablo, pa je pretraga O(log n) umesto O(n). Kad padne na 6, vraća se u listu. |
-| **Kapacitet** | Broj kanti. Podrazumevano **16**. |
-| **Load factor** | Podrazumevano **0.75**. Kad je mapa popunjena 75%, broj kanti se **duplira** (resize), a svi elementi se raspoređuju ponovo. |
-
-**Ugovor `equals` / `hashCode`:**
-- Ako je `a.equals(b)`, **mora** biti `a.hashCode() == b.hashCode()`.
-- Obrnuto ne mora: dva različita objekta smeju imati isti hash (to je kolizija).
-- Ako u svojoj klasi override-uješ `equals`, **moraš** i `hashCode`. Inače mapa neće naći ključ, jer traži u pogrešnoj kanti.
-
-**Ključevi treba da budu nepromenljivi (immutable).** Ako promeniš objekat posle `put`, njegov hash se promeni i `get` više ne može da ga nađe. Zato su `String` i `Integer` dobri ključevi.
+*„Kako radi HashMap?“* (kante, kolizije, treeify, load factor) i ugovor `equals`/`hashCode`: u [JAVA_THEORY.md](JAVA_THEORY.md#2-kako-hashmap-radi-iznutra).
 
 ---
 
 ## HashSet
 
-Čuva **samo ključeve**, bez vrednosti. Nema duplikata, redosled nije garantovan. Iznutra je to HashMap u kome se vrednosti ignorišu, pa važi sve iz [Kako radi iznutra](#kako-radi-iznutra).
+Čuva **samo ključeve**, bez vrednosti. Nema duplikata, redosled nije garantovan. Iznutra je to HashMap u kome se vrednosti ignorišu, pa važi sve iz [Kako HashMap radi iznutra](JAVA_THEORY.md#2-kako-hashmap-radi-iznutra).
 
 ```java
 import java.util.HashSet;
@@ -465,4 +509,5 @@ for (int x : seen) { ... }   // prolazak, redosled nije garantovan
 | Contains Duplicate | Pamti viđene brojeve u **HashSet**. Ako je broj već u setu, `return true`. Pozicija ne treba, pa nije HashMap. O(n) vreme, O(n) memorija. Alternative: dve petlje O(n²), ili sortiraj pa uporedi susede O(n log n). |
 | Group Anagrams | Anagrami posle sortiranja slova izgledaju isto: `"eat"`, `"tea"` → `"aet"`. To je **ključ grupe**. Mapa `Map<String, List<String>>`: za svaku reč `toCharArray` → `Arrays.sort` → `new String` = ključ, pa `computeIfAbsent(key, k -> new ArrayList<>()).add(reč)`. Na kraju `new ArrayList<>(groups.values())`. O(n · k log k), n = broj reči, k = dužina reči. |
 | Top K Frequent | 1) prebroj: `Map<broj, koliko puta>` sa `getOrDefault`. 2) „prevrni“ u kutije: `Map<koliko puta, List<broj>>` sa `computeIfAbsent`. 3) broj ponavljanja ne može biti veći od n, pa probaj ključeve od `n` naniže (`containsKey`) i skupljaj brojeve dok ih ne bude k. O(n). Jednostavnije: sortiraj po broju ponavljanja, O(n log n). |
+| Encode and Decode Strings | Bilo koji razdvajač (`,` `-` `#`) može da bude i unutar reči. Zato **ispred svake reči upiši njenu dužinu i `#`**: `["a-b","c"]` → `"3#a-b1#c"`. Encode: `sb.append(s.length()).append('#').append(s)`. Decode: `j = s.indexOf('#', i)`; `len = Integer.parseInt(s.substring(i, j))`; reč = `s.substring(j + 1, j + 1 + len)`; `i = j + 1 + len`. `#` ne smeta u reči, jer reč samo **odbrojiš**, ne tražiš. O(n). |
 | | |
