@@ -102,6 +102,35 @@ while (l < r) {
 - 3Sum: sort first, fix `i`, run two pointers on the rest, and skip duplicates.
 - Container With Most Water: always move the shorter wall.
 
+### Kako da prepoznam u zadatku (moje beleške)
+
+> Izvor: *Coding Interview Patterns*, pogl. 1 Two Pointers, uvod (Intuition, Strategies, When to use, Real-world example).
+
+**Ideja:** dva indeksa u isti niz, string ili povezanu listu. Naivno poređenje svakog para su dve ugnježdene petlje, O(n²). Ako ulaz ima **pravilnost** (sortiran je ili simetričan), svakim korakom mogu da pomerim jedan pokazivač i odbacim deo mogućnosti → **O(n) vreme, O(1) memorija**.
+
+**Signali u zadatku:**
+- podaci su linearni: niz, string, povezana lista
+- ulaz je **sortiran** ili **simetričan** (npr. palindrom)
+- traži se **par** vrednosti ili rezultat koji se dobija iz dve vrednosti
+- traži se rad *in place* / O(1) dodatne memorije
+
+**3 strategije:**
+
+| Strategija | Kako se kreću pokazivači | Skica |
+|---|---|---|
+| **Inward** (ka unutra) | sa **suprotnih krajeva** jedan ka drugom, dok se ne sretnu | `l = 0, r = n - 1; while (l < r) { ...; l++ ili r-- }` |
+| **Unidirectional** (u istom smeru) | oba kreću sa **istog kraja**, idu u istom smeru; jedan **traži**, drugi **pamti** (npr. gde upisati sledeći) | `int w = 0; for (int i = 0; i < n; i++) if (...) { ...; w++; }` |
+| **Staged** (u fazama) | jedan pokazivač **traži** element koji ispunjava uslov; kad ga nađe, **drugi** kreće da skuplja informacije u vezi s njim | dve odvojene petlje/faze |
+
+**Primer iz prakse:** sažimanje memorije u garbage collectoru. Pokazivač „scan“ traži žive objekte i preskače mrtve, pokazivač „free“ pokazuje gde sledeći živi objekat treba premestiti. Živi objekti završe jedan do drugog, a oslobođena memorija u jednom komadu (unidirectional).
+
+**Two Pointers ili HashMap?**
+- niz je sortiran → Two Pointers, O(1) memorije
+- nije sortiran, a smem O(n) memorije → HashMap (Two Sum)
+- nije sortiran, a memorija mora biti O(1) → prvo sortiraj (O(n log n)), pa Two Pointers
+
+Srodni šabloni sa posebnim poglavljima: *Fast and Slow Pointers* i *Sliding Window*.
+
 **Tricks I learned:**
 -
 

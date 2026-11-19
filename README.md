@@ -8,8 +8,8 @@ The pattern templates are in [CHEATSHEET.md](CHEATSHEET.md). Java methods and tr
 
 | # | Pattern | Package | Solved |
 |---|---------|---------|--------|
-| 1 | Arrays & Hashing | `dsa.arrays` | 5 / 9 |
-| 2 | Two Pointers | `dsa.twopointers` | 0 / 5 |
+| 1 | Arrays & Hashing | `dsa.arrays` | 6 / 9 |
+| 2 | Two Pointers | `dsa.twopointers` | 1 / 5 |
 | 3 | Sliding Window | `dsa.slidingwindow` | 0 / 6 |
 | 4 | Stack | `dsa.stack` | 0 / 7 |
 | 5 | Binary Search | `dsa.binarysearch` | 0 / 7 |

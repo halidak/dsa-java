@@ -9,7 +9,7 @@ Java metode i trikovi iz zadataka, **grupisano po temi** (ne po danu kad sam uč
 ## Sadržaj
 
 1. [Kako rešavam zadatak](#kako-rešavam-zadatak): šta intervjuer gleda, 6 koraka, komunikacija
-2. [Stringovi](#stringovi): `length`, `charAt`, `toCharArray`, `c - 'a'`, `indexOf`, `substring`, `Integer.parseInt`, [StringBuilder](#stringbuilder)
+2. [Stringovi](#stringovi): `length`, `charAt`, `toCharArray`, `c - 'a'`, `Character.isLetterOrDigit` / `toLowerCase`, `indexOf`, `substring`, `Integer.parseInt`, [StringBuilder](#stringbuilder)
 3. [Nizovi](#nizovi): `Arrays.sort`, `Arrays.equals`, `Arrays.toString`, for-each, `new int[...]`
 4. [Hash mape i setovi: kad i zašto](#hash-mape-i-setovi-kad-i-zašto): poređenje, složenost, ključne reči u zadatku
    - [HashMap](#hashmap): metode, prolazak kroz mapu, Java 8 metode (`computeIfAbsent`, grupisanje), [lambda izrazi](#lambda-izrazi), [kako radi iznutra](JAVA_THEORY.md#2-kako-hashmap-radi-iznutra)
@@ -67,7 +67,7 @@ Java metode i trikovi iz zadataka, **grupisano po temi** (ne po danu kad sam uč
 
 ## Stringovi
 
-> Izvori: metode iz zadataka (Valid Anagram, Group Anagrams, Encode and Decode Strings). Teorija o stringovima: [JAVA_THEORY.md](JAVA_THEORY.md#1-stringovi).
+> Izvori: metode iz zadataka (Valid Anagram, Group Anagrams, Encode and Decode Strings, Valid Palindrome). Teorija o stringovima: [JAVA_THEORY.md](JAVA_THEORY.md#1-stringovi).
 
 | Metoda | Šta radi | Složenost |
 |---|---|---|
@@ -75,6 +75,8 @@ Java metode i trikovi iz zadataka, **grupisano po temi** (ne po danu kad sam uč
 | `s.charAt(i)` | karakter na poziciji `i` | O(1) |
 | `s.toCharArray()` | string → `char[]` | O(n) |
 | `c - 'a'` | slovo → broj 0–25 | O(1) |
+| `Character.isLetterOrDigit(c)` | da li je znak slovo ili cifra | O(1) |
+| `Character.toLowerCase(c)` | znak → malo slovo | O(1) |
 | `new String(chars)` | `char[]` → String | O(n) |
 | `s.indexOf(c, od)` | pozicija prvog `c` počevši od `od`, ili `-1` | O(n) |
 | `s.substring(od, do)` | deo stringa od `od` do `do` (**`do` se ne uzima**) | O(dužina dela) |
@@ -113,6 +115,20 @@ int index = 'c' - 'a';   // 2
 - Svaki `char` je u stvari broj (ASCII kod), pa oduzimanje radi.
 - Koristi se uz `int[] count = new int[26]` za brojanje slova, umesto HashMap-e. To je brže.
 - Radi samo ako zadatak kaže „lowercase English letters“.
+
+### `Character.isLetterOrDigit(c)` / `Character.toLowerCase(c)`
+Statičke metode klase `Character` za **jedan znak** (`char`).
+```java
+Character.isLetterOrDigit('a')   // true
+Character.isLetterOrDigit('7')   // true
+Character.isLetterOrDigit(',')   // false (i razmak, ':', '!'... → false)
+Character.toLowerCase('A')       // 'a'
+Character.toLowerCase('7')       // '7' (cifre i mala slova ostaju ista)
+```
+- Koristi se kad zadatak kaže „ignore non-alphanumeric characters“ i „ignore case“ (Valid Palindrome).
+- Srodne: `Character.isLetter(c)`, `Character.isDigit(c)`, `Character.isWhitespace(c)`, `Character.toUpperCase(c)`.
+- Za ceo string postoji `s.toLowerCase()` (metoda stringa, pravi NOV string), a za jedan znak `Character.toLowerCase(c)`.
+- **Zamka:** prosledi **znak**, ne indeks. `Character.isLetterOrDigit(i)` gde je `i` pozicija u petlji **kompajlira se bez greške** (postoji verzija koja prima `int`), ali proverava broj `i`, a ne slovo. A `sb.append(Character.toLowerCase(i))` dopiše **broj**. Uvek prvo `char c = s.charAt(i);`, pa radi sa `c`.
 
 ### `new String(chars)` / `String.valueOf(chars)`
 Pravi String od niza karaktera. Obrnuto od `toCharArray()`.
@@ -510,4 +526,5 @@ for (int x : seen) { ... }   // prolazak, redosled nije garantovan
 | Group Anagrams | Anagrami posle sortiranja slova izgledaju isto: `"eat"`, `"tea"` → `"aet"`. To je **ključ grupe**. Mapa `Map<String, List<String>>`: za svaku reč `toCharArray` → `Arrays.sort` → `new String` = ključ, pa `computeIfAbsent(key, k -> new ArrayList<>()).add(reč)`. Na kraju `new ArrayList<>(groups.values())`. O(n · k log k), n = broj reči, k = dužina reči. |
 | Top K Frequent | 1) prebroj: `Map<broj, koliko puta>` sa `getOrDefault`. 2) „prevrni“ u kutije: `Map<koliko puta, List<broj>>` sa `computeIfAbsent`. 3) broj ponavljanja ne može biti veći od n, pa probaj ključeve od `n` naniže (`containsKey`) i skupljaj brojeve dok ih ne bude k. O(n). Jednostavnije: sortiraj po broju ponavljanja, O(n log n). |
 | Encode and Decode Strings | Bilo koji razdvajač (`,` `-` `#`) može da bude i unutar reči. Zato **ispred svake reči upiši njenu dužinu i `#`**: `["a-b","c"]` → `"3#a-b1#c"`. Encode: `sb.append(s.length()).append('#').append(s)`. Decode: `j = s.indexOf('#', i)`; `len = Integer.parseInt(s.substring(i, j))`; reč = `s.substring(j + 1, j + 1 + len)`; `i = j + 1 + len`. `#` ne smeta u reči, jer reč samo **odbrojiš**, ne tražiš. O(n). |
+| Valid Palindrome | 1. verzija (moja, uz pomoć oko sintakse): prođi kroz string, u `StringBuilder` dodaj samo `Character.isLetterOrDigit(c)` kao `Character.toLowerCase(c)`, pa dva pokazivača nad očišćenim tekstom (`left = 0`, `right = sb.length() - 1`, **posle** čišćenja). `return true` tek **posle** petlje, kad su svi parovi provereni. O(n) vreme, O(n) memorija. |
 | | |
